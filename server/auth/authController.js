@@ -1,7 +1,9 @@
-const { OAuth2Client } = require("google-auth-library");
-const jwt = require("jsonwebtoken");
-const pool = require("../db");
-require("dotenv").config();
+import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
+import pool from "../db.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -194,7 +196,7 @@ const authorizeRoles = (...allowedRoles) => {
   };
 };
 
-module.exports = {
+export {
   googleLogin,
   getCurrentUser,
   logout,
