@@ -1,0 +1,35 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    sans-serif;
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Google Sign-In Button Custom Styling - External iframe overrides */
+#google-signin-button {
+  display: flex;
+  justify-content: center;
+}
+
+#google-signin-button > div {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+#google-signin-button iframe {
+  margin: 0 auto !important;
+}
