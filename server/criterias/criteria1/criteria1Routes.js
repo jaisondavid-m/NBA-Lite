@@ -1,0 +1,45 @@
+import express from "express";
+import multer from "multer";
+import {
+  createVisionMissionPEOs,
+  getVisionMissionPEOs,
+  getVisionMissionPEOsByDepartment,
+  getVisionMissionPEOsById,
+  deleteVisionMissionPEOs,
+  getDepartments,
+} from "./criteria1Controller.js";
+
+const router = express.Router();
+
+// Configure multer for image uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept only image files
+    const allowedMimes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/svg+xml",
+    ];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
+
+// Routes
+router.post("/vision-mission-peos", upload.single("image"), createVisionMissionPEOs);
+router.get("/vision-mission-peos", getVisionMissionPEOs);
+router.get("/vision-mission-peos/by-department", getVisionMissionPEOsByDepartment);
+router.get("/vision-mission-peos/:id", getVisionMissionPEOsById);
+router.delete("/vision-mission-peos/:id", deleteVisionMissionPEOs);
+router.get("/departments", getDepartments);
+
+export default router;

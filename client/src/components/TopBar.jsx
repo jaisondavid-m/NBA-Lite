@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import useAuthStore from "../store/authStore";
 import useFilterStore from "../store/filterStore";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:5001/api";
 const TopBar = () => {
   const location = useLocation();
   const { user, isAdmin } = useAuthStore();
@@ -41,17 +41,30 @@ const TopBar = () => {
         const response = await fetch(`${API_URL}/institute/courses`, {
           credentials: "include",
         });
+        
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log("Programs API Response:", data);
 
-        if (data.success && data.data) {
+        if (data.success && data.data && Array.isArray(data.data)) {
+          // More robust normalization that handles different field names
           const normalized = data.data.map((program) => ({
-            ...program,
-            coursename: program.programName || program.departmentName || "",
+            id: program.id,
+            programName: program.programName || program.departmentName || program.name || "",
+            coursename: program.programName || program.departmentName || program.name || "",
           }));
+          console.log("Normalized programs:", normalized);
           setPrograms(normalized);
+        } else {
+          console.warn("Unexpected data structure from API:", data);
+          setPrograms([]);
         }
       } catch (error) {
         console.error("Error fetching programs for top bar filters:", error);
+        setPrograms([]);
       }
     };
 
@@ -67,7 +80,13 @@ const TopBar = () => {
     }
 
     const selected = programs.find((program) => String(program.id) === programId);
-    setSelectedProgram(programId, selected?.coursename || selected?.programName || selected?.departmentName || "");
+    if (selected) {
+      const programName = selected.programName || selected.coursename || selected.departmentName || "";
+      console.log("Selected program:", { id: programId, name: programName });
+      setSelectedProgram(programId, programName);
+    } else {
+      console.warn("Program not found in list:", programId);
+    }
   };
   return (
     <header className="fixed top-0 left-0 right-0 lg:left-[240px] min-h-12 bg-white border-b border-gray-200 z-20 px-4 py-2">
@@ -98,11 +117,14 @@ const TopBar = () => {
             value={selectedProgramId}
             onChange={handleProgramChange}
             className="h-8 px-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[260px]"
+            disabled={programs.length === 0}
           >
-            <option value="">All Programs</option>
+            <option value="">
+              {programs.length === 0 ? "Loading programs..." : "All Programs"}
+            </option>
             {programs.map((program) => (
               <option key={program.id} value={String(program.id)}>
-                {program.coursename}
+                {program.coursename || program.programName || "Unnamed Program"}
               </option>
             ))}
           </select>
