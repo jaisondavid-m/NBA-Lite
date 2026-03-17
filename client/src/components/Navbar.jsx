@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import nbaLogo from "../assets/National_Board_of_Accreditation.svg.png";
@@ -78,85 +78,27 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [preQualifierOpen, setPreQualifierOpen] = useState(true);
-  const [sarOpen, setSarOpen] = useState(false);
-  const [partBOpen, setPartBOpen] = useState(false);
+  const [criteriaOpen, setCriteriaOpen] = useState(true);
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
 
-  const preQualifierSections = [
+  const criteriaSections = [
     {
-      section: "INSTITUTE",
+      section: "Criteria",
       items: [
-        { name: "Institute Profile", path: "/institute-profile", icon: Icons.building },
-        { name: "All Programs", path: "/all-programs", icon: Icons.book },
-        { name: "Allied Course Mapping", path: "/allied-mapping", icon: Icons.academic },
-        { name: "Students Intake", path: "/students-intake", icon: Icons.link },
+        { name: "Criteria 1", path: "/criteria1", icon: Icons.book },
       ],
-    },
-    {
-      section: "FACULTY",
-      items: [
-        { name: "Faculty by Department", path: "/faculty-department", icon: Icons.users },
-        { name: "Faculty by Allied Dept.", path: "/faculty-allied", icon: Icons.user },
-      ],
-    },
-    {
-      section: "ANALYTICS",
-      items: [
-        { name: "Student Details by Dept.", path: "/students-department", icon: Icons.users },
-        { name: "Student Details by Allied Dept.", path: "/students-allied", icon: Icons.user },
-        { name: "Faculty Student Ratio by Dept.", path: "/ratio-department", icon: Icons.chart },
-      ],
-    },
+    }
   ];
 
-  const sarCriteria = Array.from({ length: 9 }, (_, i) => ({
-    name: `Criteria ${i + 1}`,
-    path: `/sar/part-b/criteria-${i + 1}`,
-  }));
-
   const isActive = (path) => location.pathname === path;
-  const isPreQualifierRoute = preQualifierSections.some((section) =>
+  const isCriteriaRoute = criteriaSections.some((section) =>
     section.items.some((item) => item.path === location.pathname)
   );
-  const isSarRoute = location.pathname.startsWith("/sar");
-
-  useEffect(() => {
-    if (isSarRoute) {
-      setSarOpen(true);
-      setPreQualifierOpen(false);
-      if (location.pathname.startsWith("/sar/part-b")) {
-        setPartBOpen(true);
-      }
-    } else {
-      setPreQualifierOpen(true);
-      setSarOpen(false);
-    }
-  }, [isSarRoute, location.pathname]);
-
-  const togglePreQualifier = () => {
-    setPreQualifierOpen((prev) => {
-      const next = !prev;
-      if (next) {
-        setSarOpen(false);
-      }
-      return next;
-    });
-  };
-
-  const toggleSar = () => {
-    setSarOpen((prev) => {
-      const next = !prev;
-      if (next) {
-        setPreQualifierOpen(false);
-      }
-      return next;
-    });
-  };
+  const toggleCriteria = () => setCriteriaOpen((prev) => !prev);
 
   return (
     <>
@@ -204,26 +146,26 @@ const Navbar = () => {
           <div className="space-y-1">
             <div>
               <button
-                onClick={togglePreQualifier}
+                onClick={toggleCriteria}
                 className={`w-full flex items-center gap-3 px-5 py-2.5 text-[14px] font-medium
                   transition-all duration-200 border-r-[3px]
                   ${
-                    isPreQualifierRoute
+                    isCriteriaRoute
                       ? "bg-blue-50 text-blue-600 border-blue-600"
                       : "text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900"
                   }
                 `}
               >
-                <span className={isPreQualifierRoute ? "text-blue-600" : "text-gray-500"}>{Icons.book}</span>
-                <span className="flex-1 text-left">Pre-Qualifier</span>
-                <span className={isPreQualifierRoute ? "text-blue-600" : "text-gray-400"}>
-                  {preQualifierOpen ? Icons.chevronDown : Icons.chevronRight}
+                <span className={isCriteriaRoute ? "text-blue-600" : "text-gray-500"}>{Icons.book}</span>
+                <span className="flex-1 text-left">Criteria</span>
+                <span className={isCriteriaRoute ? "text-blue-600" : "text-gray-400"}>
+                  {criteriaOpen ? Icons.chevronDown : Icons.chevronRight}
                 </span>
               </button>
 
-              {preQualifierOpen && (
+              {criteriaOpen && (
                 <div className="mt-0.5 space-y-3">
-                  {preQualifierSections.map((section, sectionIdx) => (
+                  {criteriaSections.map((section, sectionIdx) => (
                     <div key={sectionIdx}>
                       <h3 className="pl-12 pr-5 py-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                         {section.section}
@@ -252,93 +194,6 @@ const Navbar = () => {
                       </ul>
                     </div>
                   ))}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <button
-                onClick={toggleSar}
-                className={`w-full flex items-center gap-3 px-5 py-2.5 text-[14px] font-medium
-                  transition-all duration-200 border-r-[3px]
-                  ${
-                    isSarRoute
-                      ? "bg-blue-50 text-blue-600 border-blue-600"
-                      : "text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900"
-                  }
-                `}
-              >
-                <span className={isSarRoute ? "text-blue-600" : "text-gray-500"}>{Icons.document}</span>
-                <span className="flex-1 text-left">SAR</span>
-                <span className={isSarRoute ? "text-blue-600" : "text-gray-400"}>
-                  {sarOpen ? Icons.chevronDown : Icons.chevronRight}
-                </span>
-              </button>
-
-              {sarOpen && (
-                <div className="mt-0.5 space-y-0.5">
-                  <Link
-                    to="/sar/part-a"
-                    onClick={() => setIsOpen(false)}
-                    className={`
-                      flex items-center gap-3 pl-12 pr-5 py-2 text-[13px] font-medium
-                      transition-all duration-200 border-r-[3px]
-                      ${
-                        isActive("/sar/part-a")
-                          ? "bg-blue-50 text-blue-600 border-blue-600"
-                          : "text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-800"
-                      }
-                    `}
-                  >
-                    <span className={isActive("/sar/part-a") ? "text-blue-600" : "text-gray-500"}>{Icons.document}</span>
-                    <span>Part-A</span>
-                  </Link>
-
-                  <div>
-                    <button
-                      onClick={() => setPartBOpen(!partBOpen)}
-                      className={`w-full flex items-center gap-3 pl-12 pr-5 py-2 text-[13px] font-medium
-                        transition-all duration-200 border-r-[3px]
-                        ${
-                          location.pathname.startsWith("/sar/part-b")
-                            ? "bg-blue-50 text-blue-600 border-blue-600"
-                            : "text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-800"
-                        }
-                      `}
-                    >
-                      <span className={location.pathname.startsWith("/sar/part-b") ? "text-blue-600" : "text-gray-500"}>
-                        {Icons.clipboardList}
-                      </span>
-                      <span className="flex-1 text-left">Part-B</span>
-                      <span className={location.pathname.startsWith("/sar/part-b") ? "text-blue-600" : "text-gray-400"}>
-                        {partBOpen ? Icons.chevronDown : Icons.chevronRight}
-                      </span>
-                    </button>
-
-                    {partBOpen && (
-                      <ul className="mt-0.5 space-y-0.5">
-                        {sarCriteria.map((item, idx) => (
-                          <li key={idx}>
-                            <Link
-                              to={item.path}
-                              onClick={() => setIsOpen(false)}
-                              className={`
-                                flex items-center gap-3 pl-16 pr-5 py-2 text-[13px] font-medium
-                                transition-all duration-200 border-r-[3px]
-                                ${
-                                  isActive(item.path)
-                                    ? "bg-blue-50 text-blue-600 border-blue-600"
-                                    : "text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-800"
-                                }
-                              `}
-                            >
-                              <span>{item.name}</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
                 </div>
               )}
             </div>

@@ -10,14 +10,20 @@ const Login = () => {
   const navigate = useNavigate();
   const { googleLogin, isAuthenticated, isLoading } = useAuthStore();
 
+  // Redirect if already authenticated
   useEffect(() => {
-    // Redirect if already authenticated
     if (isAuthenticated && !isLoading) {
-      navigate("/institute-profile");
+      navigate("/criteria1");
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  // Initialize Google Sign-In only once on mount
+  useEffect(() => {
+    // Check if script already exists to prevent duplicate loads
+    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
       return;
     }
 
-    // Load Google Sign-In script
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
@@ -27,10 +33,14 @@ const Login = () => {
     script.onload = () => {
       /* global google */
       if (window.google) {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleResponse,
-        });
+        // Only initialize if not already initialized
+        if (!window.googleInitialized) {
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleResponse,
+          });
+          window.googleInitialized = true;
+        }
 
         window.google.accounts.id.renderButton(
           document.getElementById("google-signin-button"),
@@ -47,20 +57,15 @@ const Login = () => {
     };
 
     return () => {
-      const existingScript = document.querySelector(
-        'script[src="https://accounts.google.com/gsi/client"]',
-      );
-      if (existingScript) {
-        existingScript.remove();
-      }
+      document.body.removeChild(script);
     };
-  }, [isAuthenticated, isLoading, navigate]);
+  }, []);
 
   const handleGoogleResponse = async (response) => {
     if (response.credential) {
       const result = await googleLogin(response.credential);
       if (result.success) {
-        navigate("/institute-profile");
+        navigate("/criteria1");
       } else {
         alert("Login failed: " + (result.error || "Unknown error"));
       }

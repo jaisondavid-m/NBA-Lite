@@ -17,7 +17,15 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite dev server
+    origin: (origin, callback) => {
+      // Allow requests from localhost on any port (for development)
+      // Also allow requests with no origin (like mobile apps, curl, postman)
+      if (!origin || /^http:\/\/localhost:\d+$/.test(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );

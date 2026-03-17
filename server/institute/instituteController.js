@@ -43,8 +43,6 @@ const getProgramDetails = async (req, res) => {
       [programId]
     );
 
-    console.log("Program details for ID", programId, ":", rows);
-
     if (rows.length === 0) {
       return res.json({
         success: true,

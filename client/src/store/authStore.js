@@ -65,6 +65,12 @@ const useAuthStore = create((set, get) => ({
         credentials: "include",
       });
 
+      if (!response.ok) {
+        // 401 is expected when user is not authenticated (first load)
+        set({ user: null, isAuthenticated: false, isLoading: false });
+        return;
+      }
+
       const data = await response.json();
 
       if (data.success) {
@@ -73,7 +79,7 @@ const useAuthStore = create((set, get) => ({
         set({ user: null, isAuthenticated: false, isLoading: false });
       }
     } catch (error) {
-      console.error("Fetch user error:", error);
+      console.error("Fetch user error (server may not be running):", error.message);
       set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },
