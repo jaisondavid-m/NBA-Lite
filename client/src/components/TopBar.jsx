@@ -11,6 +11,7 @@ const TopBar = () => {
   // Get page name from path
   const getPageName = () => {
     const pathMap = {
+      "/criteria1": "Criteria 1",
       "/institute-profile": "Institute Profile",
       "/all-programs": "All Programs",
       "/allied-mapping": "Allied Course Mapping",
@@ -120,7 +121,7 @@ const TopBar = () => {
             disabled={programs.length === 0}
           >
             <option value="">
-              {programs.length === 0 ? "Loading programs..." : "All Programs"}
+              {programs.length === 0 ? "Loading departments..." : "Select Department"}
             </option>
             {programs.map((program) => (
               <option key={program.id} value={String(program.id)}>

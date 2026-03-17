@@ -15,27 +15,19 @@ const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    // Accept only image files
-    const allowedMimes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-      "image/svg+xml",
-    ];
-    if (allowedMimes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only image files are allowed"));
-    }
+    fileSize: 25 * 1024 * 1024,
   },
 });
 
 // Routes
-router.post("/vision-mission-peos", upload.single("image"), createVisionMissionPEOs);
+router.post(
+  "/vision-mission-peos",
+  upload.fields([
+    { name: "attachment", maxCount: 1 },
+    { name: "file", maxCount: 1 },
+  ]),
+  createVisionMissionPEOs,
+);
 router.get("/vision-mission-peos", getVisionMissionPEOs);
 router.get("/vision-mission-peos/by-department", getVisionMissionPEOsByDepartment);
 router.get("/vision-mission-peos/:id", getVisionMissionPEOsById);

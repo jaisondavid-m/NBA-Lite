@@ -4,7 +4,10 @@ export const getAllPrograms = async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const [programs] = await connection.query(
-      "SELECT id, department_name as programName FROM all_program ORDER BY department_name"
+      `SELECT id, department_name as programName
+       FROM all_program
+       WHERE department_name IS NOT NULL AND department_name != ''
+       ORDER BY department_name, id`
     );
     connection.release();
 
